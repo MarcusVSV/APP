@@ -250,62 +250,155 @@ document.getElementById('form-divida').addEventListener('submit', function(e) {
     valorInput.value = '';
 });
 
-// === RENDERIZAÇÃO DA LISTA DE DÍVIDAS ATIVAS ===
+// === LÓGICA DE FILTROS DA LISTA ===
+const radiosFiltro = document.querySelectorAll('input[name="filtro-tipo"]');
+const containerFiltroPessoa = document.getElementById('filtro-pessoa-container');
+const containerFiltroMes = document.getElementById('filtro-mes-container');
+const inputFiltroPessoa = document.getElementById('filtro-pessoa');
+const inputFiltroMes = document.getElementById('filtro-mes');
+
+// Define o mês atual como padrão no campo de data
+const now = new Date();
+inputFiltroMes.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+radiosFiltro.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+        if(e.target.value === 'pessoa') {
+            containerFiltroPessoa.classList.remove('hidden');
+            containerFiltroMes.classList.add('hidden');
+        } else {
+            containerFiltroPessoa.classList.add('hidden');
+            containerFiltroMes.classList.remove('hidden');
+        }
+        renderizarDividas();
+    });
+});
+
+inputFiltroPessoa.addEventListener('input', renderizarDividas);
+inputFiltroMes.addEventListener('change', renderizarDividas);
+
+// === RENDERIZAÇÃO DA LISTA DE DÍVIDAS ATIVAS (Com Filtros) ===
 function renderizarDividas() {
     const container = document.getElementById('lista-dividas-container');
-    const dividas = JSON.parse(localStorage.getItem('minhasDividas')) || [];
+    let dividas = JSON.parse(localStorage.getItem('minhasDividas')) || [];
+    
+    const tipoFiltro = document.querySelector('input[name="filtro-tipo"]:checked').value;
     
     if (dividas.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:40px;">Nenhuma dívida ativa encontrada.</p>';
+        container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:40px;">Nenhuma dívida cadastrada.</p>';
         return;
     }
     
     container.innerHTML = '';
-    
-    dividas.forEach(divida => {
-        const card = document.createElement('div');
-        card.className = 'debt-card';
-        const valorTotalFmt = divida.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        
-        let htmlParcelas = '';
-        divida.parcelas.forEach(p => {
-            const dataFmt = new Date(p.dataVencimento).toLocaleDateString('pt-BR');
-            const isPaga = p.status === 'Pago';
-            const valorParcelaFmt = parseFloat(p.valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+    if (tipoFiltro === 'pessoa') {
+        // --- MODO 1: VISÃO POR PESSOA (COMO ERA ANTES) ---
+        const buscaPessoa = inputFiltroPessoa.value.trim().toLowerCase();
+        if (buscaPessoa) {
+            dividas = dividas.filter(d => d.devedor.toLowerCase().includes(buscaPessoa));
+        }
+
+        if (dividas.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:40px;">Nenhum devedor encontrado.</p>';
+            return;
+        }
+
+        dividas.forEach(divida => {
+            const card = document.createElement('div');
+            card.className = 'debt-card';
+            const valorTotalFmt = divida.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             
-            htmlParcelas += `
-                <li class="installment-item ${isPaga ? 'paga' : ''}">
-                    <div class="installment-info">
-                        <span class="installment-value">Parcela ${p.numero}: ${valorParcelaFmt}</span>
-                        <span class="installment-date">Vencimento: ${dataFmt}</span>
+            let htmlParcelas = '';
+            divida.parcelas.forEach(p => {
+                const dataFmt = new Date(p.dataVencimento).toLocaleDateString('pt-BR');
+                const isPaga = p.status === 'Pago';
+                const valorParcelaFmt = parseFloat(p.valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                
+                htmlParcelas += `
+                    <li class="installment-item ${isPaga ? 'paga' : ''}">
+                        <div class="installment-info">
+                            <span class="installment-value">Parcela ${p.numero}: ${valorParcelaFmt}</span>
+                            <span class="installment-date">Vencimento: ${dataFmt}</span>
+                        </div>
+                        <input type="checkbox" class="pay-checkbox" 
+                            ${isPaga ? 'checked' : ''} 
+                            onchange="alterarStatusParcela(${divida.id}, ${p.numero}, this.checked)">
+                    </li>
+                `;
+            });
+            
+            card.innerHTML = `
+                <div class="debt-header">
+                    <div class="debt-title">
+                        <h3>${divida.devedor}</h3>
+                        <span><strong>${divida.motivo}</strong> ${divida.detalhes ? `- ${divida.detalhes}` : ''}</span>
                     </div>
-                    <input type="checkbox" class="pay-checkbox" 
-                        ${isPaga ? 'checked' : ''} 
-                        onchange="alterarStatusParcela(${divida.id}, ${p.numero}, this.checked)">
-                </li>
+                    <div class="debt-actions">
+                        <div class="debt-amount">${valorTotalFmt}</div>
+                        <button class="btn-delete" onclick="excluirDivida(${divida.id})">🗑️ Excluir</button>
+                    </div>
+                </div>
+                <ul class="installment-list">
+                    ${htmlParcelas}
+                </ul>
+                <button class="btn-whatsapp" onclick="enviarRelatorioWhats(${divida.id})">
+                    Enviar Relatório por WhatsApp
+                </button>
             `;
+            container.appendChild(card);
         });
-        
-        card.innerHTML = `
-            <div class="debt-header">
-                <div class="debt-title">
-                    <h3>${divida.devedor}</h3>
-                    <span><strong>${divida.motivo}</strong> ${divida.detalhes ? `- ${divida.detalhes}` : ''}</span>
+
+    } else {
+        // --- MODO 2: VISÃO POR MÊS (NOVO) ---
+        const mesAlvo = inputFiltroMes.value; // Formato "YYYY-MM"
+        let parcelasDoMes = [];
+
+        // Extrai todas as parcelas de todas as dívidas que caem no mês selecionado
+        dividas.forEach(d => {
+            d.parcelas.forEach(p => {
+                const dataP = new Date(p.dataVencimento);
+                const mesP = `${dataP.getFullYear()}-${String(dataP.getMonth() + 1).padStart(2, '0')}`;
+                
+                if (mesP === mesAlvo) {
+                    parcelasDoMes.push({ divida: d, parcela: p });
+                }
+            });
+        });
+
+        if (parcelasDoMes.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:var(--text-muted); margin-top:40px;">Nenhuma parcela para este mês.</p>';
+            return;
+        }
+
+        // Ordena por data de vencimento (as mais próximas primeiro)
+        parcelasDoMes.sort((a, b) => new Date(a.parcela.dataVencimento) - new Date(b.parcela.dataVencimento));
+
+        parcelasDoMes.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'debt-card';
+            
+            const dataFmt = new Date(item.parcela.dataVencimento).toLocaleDateString('pt-BR');
+            const isPaga = item.parcela.status === 'Pago';
+            const valorParcelaFmt = parseFloat(item.parcela.valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            card.innerHTML = `
+                <div class="debt-header" style="border-bottom:none; margin-bottom:0; padding-bottom:0;">
+                    <div class="debt-title">
+                        <h3>${item.divida.devedor}</h3>
+                        <span><strong>${item.divida.motivo}</strong> - Parcela ${item.parcela.numero} de ${item.divida.parcelas.length}</span>
+                        <span style="display:block; margin-top:4px; font-size:0.85rem; color:var(--text-muted);">Vencimento: ${dataFmt}</span>
+                    </div>
+                    <div class="debt-actions" style="align-items:flex-end;">
+                        <div class="debt-amount" style="${isPaga ? 'text-decoration:line-through; color:#A0AEC0;' : 'color:var(--primary-blue);'}">${valorParcelaFmt}</div>
+                        <input type="checkbox" class="pay-checkbox" style="margin-top:8px;"
+                            ${isPaga ? 'checked' : ''} 
+                            onchange="alterarStatusParcela(${item.divida.id}, ${item.parcela.numero}, this.checked)">
+                    </div>
                 </div>
-                <div class="debt-actions">
-                    <div class="debt-amount">${valorTotalFmt}</div>
-                    <button class="btn-delete" onclick="excluirDivida(${divida.id})">🗑️ Excluir</button>
-                </div>
-            </div>
-            <ul class="installment-list">
-                ${htmlParcelas}
-            </ul>
-            <button class="btn-whatsapp" onclick="enviarRelatorioWhats(${divida.id})">
-                Enviar Relatório por WhatsApp
-            </button>
-        `;
-        container.appendChild(card);
-    });
+            `;
+            container.appendChild(card);
+        });
+    }
 }
 
 // === EXCLUIR DÍVIDA ===

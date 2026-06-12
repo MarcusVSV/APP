@@ -108,6 +108,22 @@
     <header>
       <h2>Dívidas Ativas</h2>
     </header>
+
+    <div class="filter-section minimal-form">
+      <fieldset class="quick-select" style="margin-bottom: 12px;">
+        <label><input type="radio" name="filtro-tipo" value="pessoa" checked><span>Por Pessoa</span></label>
+        <label><input type="radio" name="filtro-tipo" value="mes"><span>Por Mês</span></label>
+      </fieldset>
+
+      <div id="filtro-pessoa-container" class="input-group" style="margin-bottom: 0;">
+        <input list="lista-contatos" id="filtro-pessoa" placeholder="Buscar devedor..." autocomplete="off">
+      </div>
+
+      <div id="filtro-mes-container" class="input-group hidden" style="margin-bottom: 0;">
+        <input type="month" id="filtro-mes" class="input-custom" style="margin-bottom: 0;">
+      </div>
+    </div>
+
     <div id="lista-dividas-container">
       </div>
   </div>

@@ -253,3 +253,12 @@ textarea {
 .btn-delete:hover {
   background: #FFD6D6;
 }
+
+/* Seção de Filtros */
+.filter-section {
+  background: var(--card-bg);
+  padding: 16px;
+  border-radius: var(--border-radius);
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
