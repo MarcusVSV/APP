@@ -262,3 +262,54 @@ textarea {
   margin-bottom: 24px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
+
+/* Dashboard e Cartões */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.col-full { grid-column: 1 / -1; }
+
+.dash-card {
+  padding: 16px;
+  border-radius: var(--border-radius);
+  color: white;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.dash-label { font-size: 0.8rem; opacity: 0.9; display: block; margin-bottom: 4px; }
+.dash-card h2 { margin: 0; font-size: 2rem; }
+.dash-card h3 { margin: 0; font-size: 1.4rem; }
+.dash-forecast { font-size: 0.85rem; opacity: 0.9; display: block; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 8px; }
+
+/* Cores Específicas */
+.balance-card { background: linear-gradient(135deg, #0056D2, #003B8E); }
+.nu-card { background: linear-gradient(135deg, #8A05BE, #5A037D); }
+.mp-card { background: linear-gradient(135deg, #009EE3, #007AB0); }
+
+.btn-edit-card {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: white;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.7rem;
+  margin-top: 8px;
+  cursor: pointer;
+}
+
+/* Transações */
+.trans-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px dashed #E2E8F0;
+}
+.trans-info strong { display: block; font-size: 1rem; color: var(--text-main); }
+.trans-info span { font-size: 0.8rem; color: var(--text-muted); }
+.trans-val { font-weight: bold; font-size: 1.1rem; }
+.val-entrada { color: #2E7D32; }
+.val-saida { color: #D32F2F; }

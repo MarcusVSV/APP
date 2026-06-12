@@ -20,17 +20,74 @@
 <body>
 
   <nav class="tabs">
-    <button class="tab-btn active" data-target="view-cadastro">Nova Dívida</button>
-    <button class="tab-btn" data-target="view-lista">Dívidas Ativas</button>
+    <button class="tab-btn active" data-target="view-home">Home</button>
+    <button class="tab-btn" data-target="view-cadastro">Nova Dívida</button>
+    <button class="tab-btn" data-target="view-lista">A Receber</button>
   </nav>
 
-  <div id="view-cadastro" class="view-container">
-    <header>
-      <h2>Nova Dívida a Receber</h2>
-    </header>
-
-    <form id="form-divida" class="minimal-form">
+  <div id="view-home" class="view-container active">
+    
+    <div class="dashboard-grid">
+      <div class="dash-card col-full balance-card">
+        <span class="dash-label">Saldo Atual (Cofre)</span>
+        <h2 id="saldo-atual">R$ 0,00</h2>
+        <span class="dash-forecast">Previsão (até dia 4): <strong id="saldo-previsto">R$ 0,00</strong></span>
+      </div>
       
+      <div class="dash-card nu-card">
+        <span class="dash-label">Dívida Nubank</span>
+        <h3 id="divida-nu">R$ 0,00</h3>
+        <button class="btn-edit-card" onclick="editarDividaCartao('nubank')">✏️ Ajustar</button>
+      </div>
+
+      <div class="dash-card mp-card">
+        <span class="dash-label">Dívida Merc. Pago</span>
+        <h3 id="divida-mp">R$ 0,00</h3>
+        <button class="btn-edit-card" onclick="editarDividaCartao('mercadoPago')">✏️ Ajustar</button>
+      </div>
+    </div>
+
+    <header style="margin-top: 32px;">
+      <h2>Registrar Transação</h2>
+    </header>
+    <form id="form-transacao" class="minimal-form">
+      <fieldset class="quick-select" style="margin-bottom: 12px;">
+        <label><input type="radio" name="trans-tipo" value="entrada" checked><span style="color:#2E7D32;">+ Entrada</span></label>
+        <label><input type="radio" name="trans-tipo" value="saida"><span style="color:#D32F2F;">- Saída</span></label>
+      </fieldset>
+
+      <div class="input-group">
+        <label>Valor e Data</label>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="trans-valor" inputmode="numeric" placeholder="R$ 0,00" required style="flex: 2;">
+          <input type="date" id="trans-data" required style="flex: 1;" class="input-custom" style="margin-bottom:0;">
+        </div>
+      </div>
+
+      <fieldset class="quick-select">
+        <legend>Conta / Cartão</legend>
+        <label><input type="radio" name="trans-conta" value="Cofre pessoal" checked><span>Cofre</span></label>
+        <label><input type="radio" name="trans-conta" value="Nubank"><span>Nubank</span></label>
+        <label><input type="radio" name="trans-conta" value="Mercado Pago"><span>Merc. Pago</span></label>
+      </fieldset>
+
+      <div class="input-group">
+        <input type="text" id="trans-desc" placeholder="Descrição (Ex: Lanche, Salário)..." class="input-custom" required>
+      </div>
+
+      <button type="submit" class="btn-primary">Registrar</button>
+    </form>
+
+    <header style="margin-top: 32px;">
+      <h3>Últimas Transações</h3>
+    </header>
+    <ul id="lista-transacoes" class="installment-list">
+      </ul>
+  </div>
+
+  <div id="view-cadastro" class="view-container hidden">
+    <header><h2>Nova Dívida a Receber</h2></header>
+    <form id="form-divida" class="minimal-form">
       <fieldset class="quick-select" style="margin-bottom: 8px;">
         <label><input type="radio" name="tipo-valor" value="total" checked><span>Valor Total</span></label>
         <label><input type="radio" name="tipo-valor" value="parcela"><span>Valor da Parcela</span></label>
@@ -67,7 +124,7 @@
       </div>
 
       <div class="input-group">
-        <label for="data-ocorrencia">Quando aconteceu? (Data do evento)</label>
+        <label for="data-ocorrencia">Quando aconteceu?</label>
         <input type="date" id="data-ocorrencia" class="input-custom" style="margin-bottom: 8px;">
       </div>
 
@@ -93,10 +150,7 @@
       <input type="number" id="qtd-parcelas-custom" class="hidden input-custom" placeholder="Nº de parcelas" min="1">
 
       <div class="custom-date-group">
-        <label class="toggle-label">
-          <input type="checkbox" id="toggle-data-custom">
-          Definir data da 1ª parcela
-        </label>
+        <label class="toggle-label"><input type="checkbox" id="toggle-data-custom">Definir data da 1ª parcela</label>
         <input type="date" id="data-primeira-parcela" class="hidden input-custom">
       </div>
 
@@ -105,27 +159,20 @@
   </div>
 
   <div id="view-lista" class="view-container hidden">
-    <header>
-      <h2>Dívidas Ativas</h2>
-    </header>
-
+    <header><h2>Dívidas Ativas</h2></header>
     <div class="filter-section minimal-form">
       <fieldset class="quick-select" style="margin-bottom: 12px;">
         <label><input type="radio" name="filtro-tipo" value="pessoa" checked><span>Por Pessoa</span></label>
         <label><input type="radio" name="filtro-tipo" value="mes"><span>Por Mês</span></label>
       </fieldset>
-
       <div id="filtro-pessoa-container" class="input-group" style="margin-bottom: 0;">
         <input list="lista-contatos" id="filtro-pessoa" placeholder="Buscar devedor..." autocomplete="off">
       </div>
-
       <div id="filtro-mes-container" class="input-group hidden" style="margin-bottom: 0;">
         <input type="month" id="filtro-mes" class="input-custom" style="margin-bottom: 0;">
       </div>
     </div>
-
-    <div id="lista-dividas-container">
-      </div>
+    <div id="lista-dividas-container"></div>
   </div>
 
   <script src="debts.js" defer></script>
