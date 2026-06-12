@@ -292,7 +292,10 @@ function renderizarDividas() {
                     <h3>${divida.devedor}</h3>
                     <span><strong>${divida.motivo}</strong> ${divida.detalhes ? `- ${divida.detalhes}` : ''}</span>
                 </div>
-                <div class="debt-amount">${valorTotalFmt}</div>
+                <div class="debt-actions">
+                    <div class="debt-amount">${valorTotalFmt}</div>
+                    <button class="btn-delete" onclick="excluirDivida(${divida.id})">🗑️ Excluir</button>
+                </div>
             </div>
             <ul class="installment-list">
                 ${htmlParcelas}
@@ -304,6 +307,18 @@ function renderizarDividas() {
         container.appendChild(card);
     });
 }
+
+// === EXCLUIR DÍVIDA ===
+window.excluirDivida = function(dividaId) {
+    if(confirm('Tem certeza que deseja excluir esta dívida? Essa ação não pode ser desfeita.')) {
+        let dividas = JSON.parse(localStorage.getItem('minhasDividas')) || [];
+        // Filtra a lista removendo a dívida com o ID clicado
+        dividas = dividas.filter(d => d.id !== dividaId);
+        localStorage.setItem('minhasDividas', JSON.stringify(dividas));
+        // Re-renderiza a tela na mesma hora
+        renderizarDividas();
+    }
+};
 
 // === ALTERAR STATUS DA PARCELA (PAGO / PENDENTE) ===
 window.alterarStatusParcela = function(dividaId, numeroParcela, isChecked) {
@@ -326,7 +341,10 @@ window.enviarRelatorioWhats = function(dividaId) {
     const divida = dividas.find(d => d.id === dividaId);
     
     if (divida) {
-        let texto = `Fala *${divida.devedor}*, beleza? Segue o resumo do nosso *${divida.motivo}*`;
+        // NOVO: Assinatura do app no topo (O "_" deixa o texto em itálico no WhatsApp)
+        let texto = `_Mensagem gerada automaticamente pelo app Quick Debts_\n\n`;
+        
+        texto += `Fala *${divida.devedor}*, beleza? Segue o resumo do nosso *${divida.motivo}*`;
         
         if (divida.dataOcorrencia) {
             const dataOcorridoFmt = new Date(divida.dataOcorrencia + 'T12:00:00').toLocaleDateString('pt-BR');
