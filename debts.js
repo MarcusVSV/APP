@@ -49,6 +49,23 @@ tabBtns.forEach(btn => {
 
 
 // === LÓGICA DO DASHBOARD (HOME) E TRANSAÇÕES ===
+// NOVO: Define quando o ciclo atual começou (Dia 5)
+function obterInicioPeriodoAtual() {
+    const hoje = new Date();
+    let ano = hoje.getFullYear();
+    let mes = hoje.getMonth();
+    
+    // Se hoje for dia 4 ou antes, o ciclo atual começou no dia 5 do mês passado
+    if (hoje.getDate() <= 4) {
+        mes -= 1;
+        if (mes < 0) {
+            mes = 11;
+            ano -= 1;
+        }
+    }
+    return new Date(ano, mes, 5, 0, 0, 0); // Dia 5 do mês do ciclo
+}
+
 function obterDataCortePeriodo() {
     const hoje = new Date();
     let ano = hoje.getFullYear();
@@ -411,6 +428,7 @@ if(formDivida) {
 
 
 // === LÓGICA DE DÍVIDAS A RECEBER E PAGAMENTO ===
+// === LÓGICA DE DÍVIDAS A RECEBER E PAGAMENTO ===
 window.alterarStatusParcela = function(dividaId, numeroParcela, isChecked) {
     const dIndex = dividas.findIndex(d => d.id === dividaId);
     if (dIndex === -1) return;
@@ -422,17 +440,26 @@ window.alterarStatusParcela = function(dividaId, numeroParcela, isChecked) {
     const valorP = parseFloat(parcela.valor);
     const origem = dividas[dIndex].origem;
 
+    // A TRAVA MÁGICA: Verifica se a parcela é do ciclo atual/futuro ou se é apenas histórico
+    const inicioPeriodo = obterInicioPeriodoAtual();
+    const dataVenc = new Date(parcela.dataVencimento);
+    const afetaSaldo = dataVenc >= inicioPeriodo;
+
     // Regras de Integração Financeira
     if (isChecked && parcela.status !== 'Pago') {
-        carteira.saldo += valorP;
-        if (origem === 'Nubank') carteira.nubank = Math.max(0, carteira.nubank - valorP);
-        if (origem === 'Mercado Pago') carteira.mercadoPago = Math.max(0, carteira.mercadoPago - valorP);
+        if (afetaSaldo) { // Só mexe no dinheiro se for do ciclo atual pra frente
+            carteira.saldo += valorP;
+            if (origem === 'Nubank') carteira.nubank = Math.max(0, carteira.nubank - valorP);
+            if (origem === 'Mercado Pago') carteira.mercadoPago = Math.max(0, carteira.mercadoPago - valorP);
+        }
         parcela.status = 'Pago';
     } 
     else if (!isChecked && parcela.status === 'Pago') {
-        carteira.saldo -= valorP;
-        if (origem === 'Nubank') carteira.nubank += valorP;
-        if (origem === 'Mercado Pago') carteira.mercadoPago += valorP;
+        if (afetaSaldo) { // Reverte a operação com a mesma regra
+            carteira.saldo -= valorP;
+            if (origem === 'Nubank') carteira.nubank += valorP;
+            if (origem === 'Mercado Pago') carteira.mercadoPago += valorP;
+        }
         parcela.status = 'Pendente';
     }
 
