@@ -1,6 +1,6 @@
 // sw.js
 
-const CACHE_NAME = 'gerenciador-cache-v4';
+const CACHE_NAME = 'gerenciador-cache-v5';
 const urlsToCache = [
   './',
   './index.html',
