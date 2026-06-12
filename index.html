@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0056D2">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Meu Gerenciador</title>
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-target="view-cadastro">Nova Dívida</button>
+    <button class="tab-btn" data-target="view-lista">Dívidas Ativas</button>
+  </nav>
+
+  <div id="view-cadastro" class="view-container">
+    <header>
+      <h2>Nova Dívida a Receber</h2>
+    </header>
+
+    <form id="form-divida" class="minimal-form">
+      <div class="input-group">
+        <label for="valor">Valor</label>
+        <input type="text" id="valor" inputmode="numeric" placeholder="R$ 0,00" required>
+      </div>
+
+      <div class="input-group">
+        <label for="devedor">Quem está devendo?</label>
+        <div class="contact-wrapper">
+          <input list="lista-contatos" id="devedor" placeholder="Digite ou selecione" autocomplete="off" required>
+          <datalist id="lista-contatos"></datalist>
+          <button type="button" id="btn-salvar-contato" class="btn-small hidden">+ Salvar Contato</button>
+        </div>
+      </div>
+
+      <fieldset class="quick-select" id="grupo-motivo">
+        <legend>Motivo</legend>
+        <label><input type="radio" name="motivo" value="Racha" checked><span>Racha</span></label>
+        <label><input type="radio" name="motivo" value="Cartão"><span>Cartão</span></label>
+        <label><input type="radio" name="motivo" value="Empréstimo"><span>Empréstimo</span></label>
+        <label><input type="radio" name="motivo" value="outro" id="radio-outro"><span>+</span></label>
+      </fieldset>
+      <input type="text" id="motivo-custom" placeholder="Qual o motivo?" class="hidden input-custom">
+      
+      <div class="input-group">
+        <textarea id="detalhes-motivo" rows="2" placeholder="Adicione detalhes do motivo (Opcional)..."></textarea>
+      </div>
+
+      <fieldset class="quick-select">
+        <legend>Origem do Dinheiro</legend>
+        <label><input type="radio" name="origem" value="Cofre pessoal" checked><span>Cofre Pessoal</span></label>
+        <label><input type="radio" name="origem" value="Nubank"><span>Nubank</span></label>
+        <label><input type="radio" name="origem" value="Mercado Pago"><span>Mercado Pago</span></label>
+      </fieldset>
+
+      <fieldset class="quick-select">
+        <legend>Parcelas</legend>
+        <label><input type="radio" name="parcelas" value="1" checked><span>À vista</span></label>
+        <label><input type="radio" name="parcelas" value="2"><span>2x</span></label>
+        <label><input type="radio" name="parcelas" value="3"><span>3x</span></label>
+        <label><input type="radio" name="parcelas" value="custom"><span>Outro</span></label>
+      </fieldset>
+
+      <div class="custom-date-group">
+        <label class="toggle-label">
+          <input type="checkbox" id="toggle-data-custom">
+          Definir data da 1ª parcela
+        </label>
+        <input type="date" id="data-primeira-parcela" class="hidden input-custom">
+      </div>
+
+      <button type="submit" class="btn-primary">Registrar Dívida</button>
+    </form>
+  </div>
+
+  <div id="view-lista" class="view-container hidden">
+    <header>
+      <h2>Dívidas Ativas</h2>
+    </header>
+    <div id="lista-dividas-container">
+      </div>
+  </div>
+
+  <script src="debts.js" defer></script>
+</body>
+</html>

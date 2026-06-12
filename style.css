@@ -1,0 +1,233 @@
+/* style.css */
+:root {
+  --primary-blue: #0056D2;
+  --primary-hover: #0043A4;
+  --bg-color: #F7F9FC;
+  --card-bg: #FFFFFF;
+  --text-main: #1A1A1A;
+  --text-muted: #666666;
+  --border-radius: 16px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  margin: 0;
+  padding: 16px;
+}
+
+/* Tipografia e Inputs */
+.minimal-form .input-group { margin-bottom: 20px; }
+.minimal-form label, .minimal-form legend {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+.minimal-form input[type="number"], .minimal-form input[list] {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: var(--border-radius);
+  background: var(--card-bg);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  font-size: 1.1rem;
+  box-sizing: border-box;
+}
+
+/* Botões de Seleção Rápida (Zero Atrito) */
+.quick-select {
+  border: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.quick-select label { margin: 0; flex: 1; }
+.quick-select input[type="radio"] { display: none; }
+.quick-select span {
+  display: block;
+  text-align: center;
+  padding: 12px;
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  font-weight: 500;
+}
+.quick-select input[type="radio"]:checked + span {
+  background: var(--primary-blue);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 86, 210, 0.3);
+}
+
+/* Botão de Ação Primária */
+.btn-primary {
+  width: 100%;
+  padding: 16px;
+  background-color: var(--primary-blue);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+.btn-primary:active { background-color: var(--primary-hover); }
+
+/* style.css (Adicione ao final do arquivo) */
+
+.hidden { display: none !important; }
+
+.input-custom {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+textarea {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: var(--border-radius);
+  background: var(--card-bg);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  font-family: inherit;
+  font-size: 0.95rem;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.contact-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-small {
+  align-self: flex-start;
+  padding: 6px 12px;
+  background-color: #E8F0FE;
+  color: var(--primary-blue);
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-small:hover { background-color: #D2E3FC; }
+
+.custom-date-group { margin-bottom: 24px; }
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: var(--text-main);
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+/* style.css (Adicione ao final do arquivo) */
+
+/* Menu de Abas Superior */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.tab-btn {
+  flex: 1;
+  padding: 14px;
+  background: #E8F0FE;
+  border: none;
+  border-radius: var(--border-radius);
+  color: var(--primary-blue);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.tab-btn.active {
+  background: var(--primary-blue);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 86, 210, 0.2);
+}
+
+/* Cards de Dívida Ativa */
+.debt-card {
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.debt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid #F0F4F8;
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+}
+.debt-title h3 { margin: 0 0 4px 0; font-size: 1.2rem; font-weight: 700; }
+.debt-title span { color: var(--text-muted); font-size: 0.85rem; display: block; }
+.debt-amount { font-size: 1.25rem; font-weight: 700; color: var(--primary-blue); }
+
+/* Lista de Parcelas Internas */
+.installment-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px 0;
+}
+.installment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px dashed #E2E8F0;
+}
+.installment-item:last-child { border-bottom: none; }
+.installment-item.paga {
+  color: #A0AEC0;
+}
+.installment-item.paga .installment-value {
+  text-decoration: line-through;
+}
+.installment-info { display: flex; flex-direction: column; gap: 2px; }
+.installment-date { font-size: 0.8rem; color: var(--text-muted); }
+
+/* Caixa de Seleção Rápida (Pago) */
+.pay-checkbox {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--primary-blue);
+  cursor: pointer;
+}
+
+/* Botão WhatsApp Minimalista */
+.btn-whatsapp {
+  width: 100%;
+  padding: 12px;
+  background-color: #25D366;
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-whatsapp:active { opacity: 0.9; }
