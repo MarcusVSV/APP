@@ -23,6 +23,12 @@
     </header>
 
     <form id="form-divida" class="minimal-form">
+      
+      <fieldset class="quick-select" style="margin-bottom: 8px;">
+        <label><input type="radio" name="tipo-valor" value="total" checked><span>Valor Total</span></label>
+        <label><input type="radio" name="tipo-valor" value="parcela"><span>Valor da Parcela</span></label>
+      </fieldset>
+
       <div class="input-group">
         <label for="valor">Valor</label>
         <input type="text" id="valor" inputmode="numeric" placeholder="R$ 0,00" required>
@@ -44,10 +50,22 @@
         <label><input type="radio" name="motivo" value="Empréstimo"><span>Empréstimo</span></label>
         <label><input type="radio" name="motivo" value="outro" id="radio-outro"><span>+</span></label>
       </fieldset>
-      <input type="text" id="motivo-custom" placeholder="Qual o motivo?" class="hidden input-custom">
       
+      <div id="container-motivo-custom" class="hidden" style="margin-bottom: 20px;">
+        <div class="contact-wrapper">
+          <input list="lista-motivos" id="motivo-custom" placeholder="Digite o novo motivo" class="input-custom" autocomplete="off" style="margin-bottom: 0;">
+          <datalist id="lista-motivos"></datalist>
+          <button type="button" id="btn-salvar-motivo" class="btn-small hidden">+ Salvar Motivo</button>
+        </div>
+      </div>
+
       <div class="input-group">
-        <textarea id="detalhes-motivo" rows="2" placeholder="Adicione detalhes do motivo (Opcional)..."></textarea>
+        <label for="data-ocorrencia">Quando aconteceu? (Data do evento)</label>
+        <input type="date" id="data-ocorrencia" class="input-custom" style="margin-bottom: 8px;">
+      </div>
+
+      <div class="input-group">
+        <textarea id="detalhes-motivo" rows="2" placeholder="Adicione detalhes (Opcional)..."></textarea>
       </div>
 
       <fieldset class="quick-select">
@@ -57,13 +75,15 @@
         <label><input type="radio" name="origem" value="Mercado Pago"><span>Mercado Pago</span></label>
       </fieldset>
 
-      <fieldset class="quick-select">
+      <fieldset class="quick-select" id="grupo-parcelas">
         <legend>Parcelas</legend>
         <label><input type="radio" name="parcelas" value="1" checked><span>À vista</span></label>
         <label><input type="radio" name="parcelas" value="2"><span>2x</span></label>
         <label><input type="radio" name="parcelas" value="3"><span>3x</span></label>
         <label><input type="radio" name="parcelas" value="custom"><span>Outro</span></label>
       </fieldset>
+      
+      <input type="number" id="qtd-parcelas-custom" class="hidden input-custom" placeholder="Nº de parcelas" min="1">
 
       <div class="custom-date-group">
         <label class="toggle-label">

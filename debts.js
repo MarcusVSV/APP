@@ -48,25 +48,74 @@ btnSalvarContato.addEventListener('click', () => {
     }
 });
 
+// === GERENCIAMENTO DE MOTIVOS (SALVOS) ===
+const inputMotivoCustom = document.getElementById('motivo-custom');
+const datalistMotivos = document.getElementById('lista-motivos');
+const btnSalvarMotivo = document.getElementById('btn-salvar-motivo');
+const containerMotivoCustom = document.getElementById('container-motivo-custom');
+
+function carregarMotivos() {
+    const motivos = JSON.parse(localStorage.getItem('meusMotivos')) || [];
+    motivos.sort((a, b) => a.localeCompare(b));
+    datalistMotivos.innerHTML = '';
+    motivos.forEach(motivo => {
+        const option = document.createElement('option');
+        option.value = motivo;
+        datalistMotivos.appendChild(option);
+    });
+}
+
+inputMotivoCustom.addEventListener('input', () => {
+    const motivos = JSON.parse(localStorage.getItem('meusMotivos')) || [];
+    const motivoAtual = inputMotivoCustom.value.trim();
+    if (motivoAtual !== '' && !motivos.includes(motivoAtual)) {
+        btnSalvarMotivo.classList.remove('hidden');
+    } else {
+        btnSalvarMotivo.classList.add('hidden');
+    }
+});
+
+btnSalvarMotivo.addEventListener('click', () => {
+    const motivos = JSON.parse(localStorage.getItem('meusMotivos')) || [];
+    const novoMotivo = inputMotivoCustom.value.trim();
+    if (novoMotivo) {
+        motivos.push(novoMotivo);
+        localStorage.setItem('meusMotivos', JSON.stringify(motivos));
+        carregarMotivos();
+        btnSalvarMotivo.classList.add('hidden');
+    }
+});
+
 // === CONTROLE DE INTERFACE (FORMULÁRIO) ===
 const radiosMotivo = document.querySelectorAll('input[name="motivo"]');
-const inputMotivoCustom = document.getElementById('motivo-custom');
-
 radiosMotivo.forEach(radio => {
     radio.addEventListener('change', (e) => {
         if (e.target.value === 'outro') {
-            inputMotivoCustom.classList.remove('hidden');
+            containerMotivoCustom.classList.remove('hidden');
             inputMotivoCustom.required = true;
         } else {
-            inputMotivoCustom.classList.add('hidden');
+            containerMotivoCustom.classList.add('hidden');
             inputMotivoCustom.required = false;
+        }
+    });
+});
+
+const radiosParcelas = document.querySelectorAll('input[name="parcelas"]');
+const inputParcelasCustom = document.getElementById('qtd-parcelas-custom');
+radiosParcelas.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+        if (e.target.value === 'custom') {
+            inputParcelasCustom.classList.remove('hidden');
+            inputParcelasCustom.required = true;
+        } else {
+            inputParcelasCustom.classList.add('hidden');
+            inputParcelasCustom.required = false;
         }
     });
 });
 
 const toggleDataCustom = document.getElementById('toggle-data-custom');
 const inputDataCustom = document.getElementById('data-primeira-parcela');
-
 toggleDataCustom.addEventListener('change', (e) => {
     if (e.target.checked) {
         inputDataCustom.classList.remove('hidden');
@@ -90,7 +139,6 @@ tabBtns.forEach(btn => {
         const targetView = btn.getAttribute('data-target');
         document.getElementById(targetView).classList.remove('hidden');
         
-        // Se clicar na aba de listagem, renderiza os dados atualizados
         if (targetView === 'view-lista') {
             renderizarDividas();
         }
@@ -118,17 +166,16 @@ function calcularPrimeiroVencimento(origem) {
     return new Date(anoVenc, mesVenc, diaVenc);
 }
 
-function gerarParcelas(valorTotal, qtdParcelas, origem, dataCustom) {
+function gerarParcelas(valorFinalParcela, qtdParcelas, origem, dataCustom) {
     const parcelas = [];
-    const valorParcela = (valorTotal / qtdParcelas).toFixed(2);
     let dataBase = dataCustom ? new Date(dataCustom + 'T12:00:00') : calcularPrimeiroVencimento(origem);
 
     for (let i = 0; i < qtdParcelas; i++) {
         let dataVencimento = new Date(dataBase.getFullYear(), dataBase.getMonth() + i, dataBase.getDate());
         parcelas.push({
             numero: i + 1,
-            valor: valorParcela,
-            dataVencimento: dataVencimento.toISOString(), // Salva como string ISO estável
+            valor: valorFinalParcela.toFixed(2), // Recebe o valor exato da parcela e formata
+            dataVencimento: dataVencimento.toISOString(), 
             status: 'Pendente'
         });
     }
@@ -139,9 +186,13 @@ function gerarParcelas(valorTotal, qtdParcelas, origem, dataCustom) {
 document.getElementById('form-divida').addEventListener('submit', function(e) {
     e.preventDefault();
 
+    // Lógica do Valor e Tipo
     let valorString = valorInput.value.replace('R$ ', '').replace(/\./g, '').replace(',', '.');
-    const valor = parseFloat(valorString);
+    const valorDigitado = parseFloat(valorString);
+    const tipoValor = document.querySelector('input[name="tipo-valor"]:checked').value;
+
     const devedor = devedorInput.value.trim();
+    const dataOcorrencia = document.getElementById('data-ocorrencia').value;
     
     let motivo = document.querySelector('input[name="motivo"]:checked').value;
     if (motivo === 'outro') motivo = inputMotivoCustom.value.trim();
@@ -149,21 +200,37 @@ document.getElementById('form-divida').addEventListener('submit', function(e) {
 
     const origem = document.querySelector('input[name="origem"]:checked').value;
     
+    // Lógica de Parcelas
     let qtdParcelas = document.querySelector('input[name="parcelas"]:checked').value;
-    if(qtdParcelas === 'custom') qtdParcelas = prompt("Quantas parcelas?") || 1;
+    if(qtdParcelas === 'custom') {
+        qtdParcelas = inputParcelasCustom.value;
+    }
+    qtdParcelas = parseInt(qtdParcelas) || 1;
+
+    // Definição Matemática (Total vs Parcela)
+    let valorTotal, valorDaParcela;
+    if (tipoValor === 'total') {
+        valorTotal = valorDigitado;
+        valorDaParcela = valorDigitado / qtdParcelas;
+    } else {
+        valorDaParcela = valorDigitado;
+        valorTotal = valorDigitado * qtdParcelas;
+    }
 
     const usarDataCustom = toggleDataCustom.checked;
     const dataCustomValor = usarDataCustom ? inputDataCustom.value : null;
 
-    const parcelas = gerarParcelas(valor, parseInt(qtdParcelas), origem, dataCustomValor);
+    // Gera as parcelas baseadas no valor já calculado da parcela
+    const parcelas = gerarParcelas(valorDaParcela, qtdParcelas, origem, dataCustomValor);
 
     const novaDivida = {
         id: Date.now(),
         devedor,
         motivo,
+        dataOcorrencia,
         detalhes,
         origem,
-        valorTotal: valor,
+        valorTotal: valorTotal,
         parcelas
     };
 
@@ -173,10 +240,13 @@ document.getElementById('form-divida').addEventListener('submit', function(e) {
 
     alert('Dívida registrada com sucesso!');
     
+    // Reseta Interface Visual
     this.reset();
-    inputMotivoCustom.classList.add('hidden');
+    containerMotivoCustom.classList.add('hidden');
+    inputParcelasCustom.classList.add('hidden');
     inputDataCustom.classList.add('hidden');
     btnSalvarContato.classList.add('hidden');
+    btnSalvarMotivo.classList.add('hidden');
     valorInput.value = '';
 });
 
@@ -245,7 +315,7 @@ window.alterarStatusParcela = function(dividaId, numeroParcela, isChecked) {
         if (pIndex !== -1) {
             dividas[dIndex].parcelas[pIndex].status = isChecked ? 'Pago' : 'Pendente';
             localStorage.setItem('minhasDividas', JSON.stringify(dividas));
-            renderizarDividas(); // Re-renderiza para aplicar estilo visual imediatamente
+            renderizarDividas(); 
         }
     }
 };
@@ -256,9 +326,19 @@ window.enviarRelatorioWhats = function(dividaId) {
     const divida = dividas.find(d => d.id === dividaId);
     
     if (divida) {
-        let texto = `Fala *${divida.devedor}*, beleza? Segue o resumo do nosso *${divida.motivo}*:\n`;
+        let texto = `Fala *${divida.devedor}*, beleza? Segue o resumo do nosso *${divida.motivo}*`;
+        
+        if (divida.dataOcorrencia) {
+            const dataOcorridoFmt = new Date(divida.dataOcorrencia + 'T12:00:00').toLocaleDateString('pt-BR');
+            texto += ` realizado no dia ${dataOcorridoFmt}:\n`;
+        } else {
+            texto += `:\n`;
+        }
+
         if (divida.detalhes) texto += `_Detalhes: ${divida.detalhes}_\n`;
-        texto += `\n`;
+        
+        const valorTotalFmt = divida.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        texto += `\n*Valor Total:* ${valorTotalFmt}\n\n`;
         
         divida.parcelas.forEach(p => {
             const dataFmt = new Date(p.dataVencimento).toLocaleDateString('pt-BR');
@@ -272,10 +352,9 @@ window.enviarRelatorioWhats = function(dividaId) {
     }
 };
 
-// Inicialização inicial do carregamento de contatos
+// Inicialização de Dados ao Abrir o App
 carregarContatos();
-
-// debts.js (Adicione no final do arquivo)
+carregarMotivos();
 
 // === REGISTRO DO SERVICE WORKER (PWA) ===
 if ('serviceWorker' in navigator) {
