@@ -1,6 +1,6 @@
 {
-  "name": "Meu Gerenciador de Dívidas",
-  "short_name": "Gerenciador",
+  "name": "Quick Debts",
+  "short_name": "Quick Debts",
   "description": "App minimalista para controle de dívidas a receber.",
   "start_url": ".",
   "scope": ".",
